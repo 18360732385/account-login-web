@@ -1,9 +1,16 @@
-import type { ErrorResponse, LoginRequest, LoginResponse, MeResponse } from './types'
+import type {
+  ChangePasswordRequest,
+  ErrorResponse,
+  LoginRequest,
+  LoginResponse,
+  MeResponse,
+  MessageResponse,
+} from './types'
 
 /**
  * API 基址：
  * - 空字符串：相对路径，配合 Vite `/api` 代理（推荐本地联调）
- * - 绝对 URL：直连后端（需 CORS）
+ * - 绝对 URL：直连后端（需 CORS；后端已配 localhost:5173）
  */
 export function getApiBaseUrl(): string {
   const raw = import.meta.env.VITE_API_BASE_URL
@@ -36,6 +43,13 @@ async function parseError(res: Response): Promise<ApiError> {
   return new ApiError(res.status, message, code)
 }
 
+function authHeaders(accessToken: string): HeadersInit {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  }
+}
+
 export async function login(req: LoginRequest): Promise<LoginResponse> {
   const base = getApiBaseUrl()
   const res = await fetch(`${base}/api/auth/login`, {
@@ -55,4 +69,28 @@ export async function fetchMe(accessToken: string): Promise<MeResponse> {
   })
   if (!res.ok) throw await parseError(res)
   return (await res.json()) as MeResponse
+}
+
+export async function logout(accessToken: string): Promise<MessageResponse> {
+  const base = getApiBaseUrl()
+  const res = await fetch(`${base}/api/auth/logout`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!res.ok) throw await parseError(res)
+  return (await res.json()) as MessageResponse
+}
+
+export async function changePassword(
+  accessToken: string,
+  req: ChangePasswordRequest,
+): Promise<MessageResponse> {
+  const base = getApiBaseUrl()
+  const res = await fetch(`${base}/api/auth/change-password`, {
+    method: 'POST',
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(req),
+  })
+  if (!res.ok) throw await parseError(res)
+  return (await res.json()) as MessageResponse
 }

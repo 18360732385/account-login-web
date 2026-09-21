@@ -14,6 +14,15 @@ export interface MeResponse {
   displayName: string
 }
 
+export interface ChangePasswordRequest {
+  oldPassword: string
+  newPassword: string
+}
+
+export interface MessageResponse {
+  message: string
+}
+
 export interface ErrorResponse {
   code?: string
   message?: string

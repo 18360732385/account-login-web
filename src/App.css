@@ -102,3 +102,64 @@ button:disabled {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.85rem;
 }
+
+.banner {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  background: rgba(20, 184, 166, 0.2);
+  border: 1px solid rgba(45, 212, 191, 0.5);
+  color: #99f6e4;
+  font-size: 0.9rem;
+  z-index: 10;
+  max-width: min(480px, 92vw);
+  text-align: center;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  margin: 1.5rem 0;
+}
+
+.change-password-form h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.change-password-form label {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+.change-password-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0b1220;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.change-password-form input:focus {
+  outline: 2px solid #14b8a6;
+  border-color: transparent;
+}
+
+.profile button[data-testid='logout-button'] {
+  background: #64748b;
+  color: #f8fafc;
+}
+
+.profile button[data-testid='logout-button']:hover:not(:disabled) {
+  background: #94a3b8;
+  color: #0f172a;
+}

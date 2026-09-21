@@ -1,29 +1,26 @@
 # account-login-web
 
-Vite + React + TypeScript 登录前端，对接 [account-login-java](https://github.com/18360732385/account-login-java)（Spring Boot JWT）。
+Vite + React + TypeScript 登录前端，对接 [account-login-java](https://github.com/18360732385/account-login-java)（Spring Boot JWT）。支持 **登出** 与 **改密（需旧密码）**。
 
 ## 要求
 
-- Node.js 20+（本机验证：v20.19.2；部分依赖声明偏好 ≥22，见 `docs/runs` 中 env_notes）
+- Node.js 20+（本机验证：v20.19.2）
 - npm 9+
 
 ## 快速开始
 
 ```bash
 # 1) 后端（另一终端）
-cd ../account-login-java   # 或克隆后进入
+cd ../account-login-java
 mvn spring-boot:run        # http://localhost:8080
 
 # 2) 前端
-cp .env.example .env.development   # 可选；仓库已带开发默认
 npm install
-npm run dev                        # http://localhost:5173
+npm run dev                # http://localhost:5173
 ```
 
-开发期默认 `VITE_API_BASE_URL` 为空，请求走相对路径 `/api/*`，由 `vite.config.ts` **代理**到 `http://localhost:8080`，避免浏览器 CORS。  
-（后端 `cors(Customizer.withDefaults())` 但未提供 `CorsConfigurationSource` 时，直连跨域会被拦。）
-
-### 直连后端（需 CORS）
+开发期默认 `VITE_API_BASE_URL` 为空，请求走相对路径 `/api/*`，由 Vite **代理**到 `http://localhost:8080`。  
+后端现已提供最小 `CorsConfigurationSource`，亦可直连：
 
 ```bash
 # .env.development
@@ -37,25 +34,28 @@ VITE_API_BASE_URL=http://localhost:8080
 | `demo` | `demo123` |
 | `admin` | `admin123` |
 
+> 若在 UI 中改密，内存用户密码会变；重启 Java 进程可恢复预置口令。联调/测试勿与后端改密用例并发污染同一账号。
+
+## 行为说明
+
+1. 登录 → `POST /api/auth/login` → `GET /api/me`
+2. 退出登录 → `POST /api/auth/logout` + 清空会话（服务端失败仍清本地）
+3. 改密 → `POST /api/auth/change-password`；成功提示「请重新登录」并回到表单
+
 ## 脚本
 
 ```bash
 npm test          # Vitest
 npm run build     # tsc + vite build
-npm run preview   # 预览产物
+npm run preview
 ```
-
-## 行为说明
-
-1. 登录表单提交 → `POST /api/auth/login`
-2. 成功后带 Bearer Token → `GET /api/me`
-3. 展示用户名/显示名 + Token 截断视图；失败展示错误态
 
 ## 文档
 
-- 产品需求：`docs/requirements/账号登录前端.md`
-- feature-eng 过程态：`docs/runs/`
+- 需求：`docs/requirements/`
+- feature-eng：`docs/runs/`
 - Spec / Plan：`docs/superpowers/`
+- **全栈优化点**：`docs/feature-eng-优化点-fullstack.md`
 
 ## License
 

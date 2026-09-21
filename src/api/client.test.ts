@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, fetchMe, getApiBaseUrl, login } from './client'
+import {
+  ApiError,
+  changePassword,
+  fetchMe,
+  getApiBaseUrl,
+  login,
+  logout,
+} from './client'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -85,5 +92,61 @@ describe('fetchMe', () => {
     )
 
     await expect(fetchMe('bad')).rejects.toMatchObject({ status: 401, message: '需要登录' })
+  })
+})
+
+describe('logout', () => {
+  it('posts bearer and returns message', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ message: '已登出' }),
+      }),
+    )
+    await expect(logout('tok')).resolves.toEqual({ message: '已登出' })
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/auth/logout',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { Authorization: 'Bearer tok' },
+      }),
+    )
+  })
+})
+
+describe('changePassword', () => {
+  it('posts body with bearer', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ message: '密码已修改，请重新登录' }),
+      }),
+    )
+    await expect(
+      changePassword('tok', { oldPassword: 'a', newPassword: 'bbbbbb' }),
+    ).resolves.toEqual({ message: '密码已修改，请重新登录' })
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/auth/change-password',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ oldPassword: 'a', newPassword: 'bbbbbb' }),
+      }),
+    )
+  })
+
+  it('wrong old password surfaces ApiError', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: async () => ({ message: '旧密码不正确' }),
+      }),
+    )
+    await expect(
+      changePassword('tok', { oldPassword: 'x', newPassword: 'yyyyyy' }),
+    ).rejects.toMatchObject({ status: 400, message: '旧密码不正确' })
   })
 })
